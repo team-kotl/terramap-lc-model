@@ -1,0 +1,7 @@
+rasterio
+numpy
+bioconda::patchify
+scikit-learn
+conda-forge::segmentation-models-pytorch
+conda-forge::albumentations
+matplotlib
