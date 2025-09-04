@@ -1,0 +1,6 @@
+__pycache__
+.conda
+.vscode
+truth
+raw
+models
