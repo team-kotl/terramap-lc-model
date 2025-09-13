@@ -156,7 +156,7 @@ def evaluate_model(model_path, image_path, mask_path, output_dir):
     # Load model
     model = smp.Unet(
         encoder_name="efficientnet-b4",
-        encoder_weights=None,
+        encoder_weights="imagenet",
         in_channels=image_padded.shape[-1],
         classes=NUM_CLASSES,
     ).to(device)
