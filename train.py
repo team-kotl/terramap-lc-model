@@ -13,8 +13,8 @@ import segmentation_models_pytorch as smp
 RAW_PATH = "raw/2019.tif"
 TRUTH_PATH = "truth/2019.tif"
 PATCH_SIZE = 256
-BATCH_SIZE = 8
-NUM_EPOCHS = 5
+BATCH_SIZE = 12
+NUM_EPOCHS = 15
 LEARNING_RATE = 0.001
 IGNORE_INDEX = 255
 NUM_CLASSES = 8
@@ -198,8 +198,20 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     # Training loop
+    start_epoch = 0
     best_val_loss = float("inf")
-    for epoch in range(NUM_EPOCHS):
+
+    # Resume training if checkpoint exists
+    checkpoint_path = "models/model-effnet.pth"
+    if os.path.exists(checkpoint_path):
+        print("Resuming from checkpoint...")
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        best_val_loss = checkpoint['val_loss']
+
+    for epoch in range(start_epoch, start_epoch + NUM_EPOCHS):
         model.train()
         train_loss = 0.0
         for images, masks in train_loader:
@@ -229,17 +241,23 @@ def main():
         # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), "models/model-effnet.pth")
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'val_loss': best_val_loss,
+            }, "models/model-effnet.pth")
 
         print(
-            f"Epoch {epoch+1}/{NUM_EPOCHS} | "
+            f"Epoch {epoch+1}/{start_epoch + NUM_EPOCHS} | "
             f"Train Loss: {avg_train_loss:.4f} | "
             f"Val Loss: {avg_val_loss:.4f}"
         )
 
     # Final test evaluation
     print("\nStarting final evaluation on test set...")
-    model.load_state_dict(torch.load("models/model-effnet.pth"))
+    checkpoint = torch.load("models/model-effnet.pth", map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
     test_loss = 0.0
