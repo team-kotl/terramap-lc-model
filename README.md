@@ -5,9 +5,9 @@ This repository contains the training script of the TerraMap U-Net Land Cover Cl
 ### Create your conda environment
 
 ```shell
-conda create --prefix ./tmlc
+conda create --prefix ./tmlc # You can select this as your interpreter in VS Code to automate activation
 conda activate ./tmlc
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126 # Please install torch with CUDA first
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126 # Torch w/ CUDA
 conda install --file requirements.txt -c conda-forge
 ```
 
