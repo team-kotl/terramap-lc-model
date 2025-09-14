@@ -160,8 +160,8 @@ def evaluate_model(model_path, image_path, mask_path, output_dir):
         in_channels=image_padded.shape[-1],
         classes=NUM_CLASSES,
     ).to(device)
-    model.load_state_dict(torch.load(model_path))
-    model.eval()
+    checkpoint = torch.load(model_path, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
 
     # Predict
     pred_mask = sliding_window_inference(
@@ -225,7 +225,7 @@ def evaluate_model(model_path, image_path, mask_path, output_dir):
 if __name__ == "__main__":
     evaluate_model(
         model_path="models/model-effnet.pth",
-        image_path="raw/2021.tif",
-        mask_path="truth/2021.tif",
+        image_path="raw/2019.tif",
+        mask_path="truth/2019.tif",
         output_dir="evaluation_results",
     )
